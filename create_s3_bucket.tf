@@ -62,3 +62,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "kms-shina-odukoya
   }
 }
 
+
+###bucket versioning
+
+resource "aws_s3_bucket_versioning" "test" {
+  bucket = aws_s3_bucket.test.id
+  versioning_configuration {
+      status = "Enabled"
+   }
+}
+
