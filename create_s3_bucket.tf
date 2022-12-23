@@ -87,3 +87,74 @@ resource "aws_s3_bucket_website_configuration" "shina-odukoya-static-website" {
 
 }
 
+
+##Bucket replication
+
+resource "aws_iam_role" "replication" {
+  name = "bucket-rep-role"
+  description ="Allow S3 to assume role for replication"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": "s3ReplicationAssume"
+    }
+  ]
+}
+POLICY
+}
+#Creating a policy
+resource "aws_iam_policy" "replication-policy" {
+  name = "s3-bucket-replication-policy"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetReplicationConfiguration",
+        "s3:ListBucket"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${aws_s3_bucket.test.arn}"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObjectVersionForReplication",
+        "s3:GetObjectVersionAcl",
+         "s3:GetObjectVersionTagging"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${aws_s3_bucket.test.arn}/*"
+      ]
+    },
+    {
+      "Action": [
+        "s3:ReplicateObject",
+        "s3:ReplicateDelete",
+        "s3:ReplicateTags"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::shina-test-stack-replication/*"
+    }
+  ]
+}
+POLICY
+}
+#Attaching the above created policy to the above created role
+resource "aws_iam_role_policy_attachment" "replication" {
+  role       = aws_iam_role.replication.name
+  policy_arn = aws_iam_policy.replication-policy.arn
+}
+
