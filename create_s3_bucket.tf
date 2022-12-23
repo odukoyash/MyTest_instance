@@ -72,3 +72,18 @@ resource "aws_s3_bucket_versioning" "test" {
    }
 }
 
+
+#Enable Website Hosting
+resource "aws_s3_bucket_website_configuration" "shina-odukoya-static-website" {
+  bucket = aws_s3_bucket.test.bucket
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+
+}
+
