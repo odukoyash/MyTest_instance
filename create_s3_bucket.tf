@@ -158,3 +158,22 @@ resource "aws_iam_role_policy_attachment" "replication" {
   policy_arn = aws_iam_policy.replication-policy.arn
 }
 
+
+
+#bucket lifescyle to a different storage tiers
+
+resource "aws_s3_bucket_intelligent_tiering_configuration" "tier-buck" {
+  bucket = aws_s3_bucket.test.id
+  name   = "tier-buck"
+
+
+  tiering {
+    access_tier = "DEEP_ARCHIVE_ACCESS"
+    days        = 180
+  }
+  tiering {
+    access_tier = "ARCHIVE_ACCESS"
+    days        = 125
+  }
+}
+
